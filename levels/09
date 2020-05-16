@@ -1,0 +1,9 @@
+-- HUMAN RESOURCE MACHINE PROGRAM --
+
+loop:
+    INBOX
+    JUMPZ skipzero
+    JUMP loop
+    skipzero:
+        OUTBOX
+        JUMP loop
