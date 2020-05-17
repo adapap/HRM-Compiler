@@ -7,7 +7,7 @@ import (
 /* Returns a slice of integers [start..stop] by step. */
 func IntegerSlice(start, stop, step int) []Value {
 	result := make([]Value, 0)
-	for i := start; i != stop; i += step {
+	for i := start; i != stop + step; i += step {
 		result = append(result, IntVal(i))
 	}
 	return result
@@ -16,7 +16,7 @@ func IntegerSlice(start, stop, step int) []Value {
 /* Returns a slice of runes [start..stop]. */
 func RuneSlice(start, stop rune) []Value {
 	result := make([]Value, 0)
-	for i := start; i < stop; i += 1 {
+	for i := start; i <= stop; i += 1 {
 		result = append(result, CharVal(i))
 	}
 	return result

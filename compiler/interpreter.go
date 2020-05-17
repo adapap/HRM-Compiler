@@ -57,6 +57,7 @@ const (
 	EMPTY_TILE_ERROR = "Empty value! You can't %s with an empty tile on the floor! " +
 		"Try writing something to that tile first."
 	EMPTY_HAND_ERROR = "Empty value! You can't %s with empty hands!"
+	NAN_ERROR = "Value is not a number, cannot %s!"
 )
 
 /* Reads the next byte in the chunk. */
@@ -198,6 +199,13 @@ func (vm *VM) run() INTERPRET_STATE {
 				vm.ip = int(offset)
 				vm.steps += 1
 			}
+		case OP_JUMPN:
+			offset := vm.readByte()
+			value := vm.hand
+			if value.Type == VAL_INT && value.Int < 0 {
+				vm.ip = int(offset)
+				vm.steps += 1
+			}
 		case OP_COPYFROM:
 			register := vm.readRegister()
 			ok := vm.takeRegister(register, "COPYFROM")
@@ -219,14 +227,25 @@ func (vm *VM) run() INTERPRET_STATE {
 				return INTERPRET_RUNTIME_ERROR
 			}
 			if value.Type != VAL_INT {
-				vm.raiseError("Value is not a number, cannot ADD!")
+				vm.raiseError(NAN_ERROR, "ADD")
 				return INTERPRET_RUNTIME_ERROR
 			}
 			vm.hand.Int += value.Int
+		case OP_SUB:
+			register := vm.readRegister()
+			value, ok := vm.checkRegister(register, "SUB")
+			if !ok {
+				return INTERPRET_RUNTIME_ERROR
+			}
+			if value.Type != VAL_INT {
+				vm.raiseError(NAN_ERROR, "SUB")
+				return INTERPRET_RUNTIME_ERROR
+			}
+			vm.hand.Int -= value.Int
 		case OP_NEGATE:
 			fmt.Printf("OP_NEGATE\n")
 			if vm.peek(0).Type != VAL_INT {
-				vm.raiseError("Operand must be a number.")
+				vm.raiseError(NAN_ERROR, "NEGATE")
 				return INTERPRET_RUNTIME_ERROR
 			}
 			vm.push(IntVal(-vm.pop().Int))

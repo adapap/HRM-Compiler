@@ -157,6 +157,9 @@ func (p *Parser) statement() {
 	case p.match(JUMPZ):
 		p.jumpIfZero()
 		p.size += 1
+	case p.match(JUMPN):
+		p.jumpIfNegative()
+		p.size += 1
 	case p.match(COPYFROM):
 		p.copyfrom()
 		p.size += 1
@@ -165,6 +168,9 @@ func (p *Parser) statement() {
 		p.size += 1
 	case p.match(ADD):
 		p.add()
+		p.size += 1
+	case p.match(SUB):
+		p.sub()
 		p.size += 1
 	case p.match(LABEL):
 		p.labelDeclaration()
@@ -211,9 +217,15 @@ func (p *Parser) jump() {
 	p.primary()
 }
 
-/* Parses a JUMPZ instruction. */
+/* Parses a JUMPZ [label] instruction. */
 func (p *Parser) jumpIfZero() {
 	p.emitByte(OP_JUMPZ)
+	p.primary()
+}
+
+/* Parses a JUMPN [label] instruction. */
+func (p *Parser) jumpIfNegative() {
+	p.emitByte(OP_JUMPN)
 	p.primary()
 }
 
@@ -233,6 +245,12 @@ func (p *Parser) copyto() {
 func (p *Parser) add() {
 	p.primary()
 	p.emitByte(OP_ADD)
+}
+
+/* Parses a SUB [addr] instruction. */
+func (p *Parser) sub() {
+	p.primary()
+	p.emitByte(OP_SUB)
 }
 
 /* Parses an expression. */

@@ -5,9 +5,27 @@ package main
 
 /* Test Cases
 eJxjYWBg6M7k7QNSDLuqzyYwjIJRMApGFAAAwIMD9g;
+
+hello, world:
+eJwrY2Bg+CH4XDdcSK9fVPjgHFHhxM1AIQZR4XvNp8V2ZlTKTk8vVJDNUVf5XK2usnMtSC7NgLcvzvh1
+T4d1wISlNiu6WGzN6gwtmvL3GpemqRiWpuXpJuRN1hatNdGePMlTX3CFo9GtddUmshtPWcluBOk/78Kh
+v8pNMmiVW+YiEH+Sf5PW+oAq69zAkFUgvnxSSOqJuJ0Z+jHeZReif0w9Eee+8Gpq1+K8jK7FrzLdFz7K
+uTblf+6lKvbspvwdKSGps5NDUkH6kisyF7mV22/yK7m0H8Q37tqZsb3DuX17h+R0467Hc4273Beu7z63
+9EyP4IrUfqOVTRPeL/s3kWX+nklbJgtPe7+Me6bgCqY5agvk526olJ/7J4tpzvR0kDm3Vv3Jclzxufro
+stc9R5c9nquyPHOR44pzS0XWlq72W1+6OnuD0UqWze4LG7bEzFTcMrvx+cbnRX7r7XNBer33lKZl7LXP
+Pb73c3Xrvoh65/11s1r35ZY779cqXbQ/IW/WodK0M8ch7n93abH2u0s7Mwwu6fX3X3q/DCT2/dnzIsfH
+f7I4Ht7KfH3/T5bAvQ2VG+/q9effk5zO8XD+7AWP588Oez55UvGLk92XXmTGfn+2wtXy2VEdhlEwCogE
+AKxj1UM;
+
+shaded corner
+eJyzYmBgaGC24mtgZgCDKWByIwuEFy9iwbaB7RkXhPdQGES+0oDw9gl7s0JY7Nwg8pQShGeuvoAPwvKW
+BKvzgvDiwp8qQ1g6QLpfdDpQfVAsRIQ33V76mqKOFoTHqsnAcFAqAqhqaj6I7wZ223lOiOxZ6VbGs9JH
+GC/JHWE0s2Rg2GHFAPaDWjQDQ2omRM3byg4G77IOhtQoEC/ymf1JhlEwCkYBVgAASVEj4g;
+
 */
 
 import (
+	"image/color"
 	"bytes"
 	"compress/zlib"
 	"encoding/base64"
@@ -21,11 +39,14 @@ import (
 	"github.com/fogleman/gg"
 )
 
-type Coords [][2]uint16
+type Coords [][2]float64
+const HRM_MAX = 65535
+const IMG_WIDTH = 420
+const IMG_HEIGHT = 140
 
-/* Scales a coordinate into the range [1-65536]. */
-func scale(n, max int) uint16 {
-	return uint16((float64(n) / float64(max)) * 65535 + 1)
+/* Scales a coordinate into from one range into another. */
+func scale(a, maxA, maxB int) float64 {
+	return (float64(a) / float64(maxA)) * float64(maxB) + 1
 }
 
 /* Encodes a PNG image into a HRM comment. */
@@ -38,15 +59,15 @@ func encodePNG(path string) (string, error) {
 	bounds := img.Bounds()
 	width := bounds.Max.X
 	height := bounds.Max.Y
-	coords := make([][2]uint16, 0)
+	coords := make([][2]float64, 0)
 	for x := 0; x < width; x += 1 {
 		for y := 0; y < height; y += 1 {
 			point := img.At(x, y)
 			r, g, b, a := point.RGBA()
-			if r == 0 && g == 0 && b == 0 && a == 65535 {
-				cx := scale(x, width)
-				cy := scale(y, height)
-				coords = append(coords, [2]uint16{cx, cy})
+			if r == 0 && g == 0 && b == 0 && a == HRM_MAX {
+				cx := scale(x, width, HRM_MAX)
+				cy := scale(y, height, HRM_MAX)
+				coords = append(coords, [2]float64{cx, cy})
 			}
 		}
 	}
@@ -85,26 +106,30 @@ func decodeComment(b64String string) (Coords, error) {
 func decodeCoords(data []byte) Coords {
 	header := binary.LittleEndian.Uint32(data[:4])
 	data = data[4:4 * header]
-	coords := make([][2]uint16, header)
+	coords := make([][2]float64, header)
 	for i := 0; i < int(4 * header); i += 4 {
 		x := binary.LittleEndian.Uint16(data[i:i + 2])
 		y := binary.LittleEndian.Uint16(data[i + 2:i + 4])
-		coords[i / 4][0] = x
-		coords[i / 4][1] = y
+		coords[i / 4][0] = float64(x)
+		coords[i / 4][1] = float64(y)
 	}
 	return coords
 }
 
 /* Displays coordinates onto an image. */
 func displayCoords(coords Coords) {
-	const width = 65536 / 100
-	const height = 65536 / 100
+	const width = IMG_WIDTH
+	const height = IMG_HEIGHT
 	ctx := gg.NewContext(width, height)
+	ctx.SetColor(color.White)
+	ctx.DrawRectangle(0, 0, width, height)
+	ctx.Fill()
+	ctx.SetColor(color.Black)
 	ctx.SetLineWidth(10)
 	segments := make([]Coords, 0)
 	var segment Coords = nil
 	for i := 0; i < len(coords); i += 1 {
-		if coords[i] == [2]uint16{0, 0} {
+		if coords[i] == [2]float64{0, 0} {
 			if len(segment) > 0 {
 				segments = append(segments, segment)
 				segment = nil
@@ -115,20 +140,19 @@ func displayCoords(coords Coords) {
 	}
 	for i := 0; i < len(segments); i += 1 {
 		if len(segments[i]) == 1 {
-			x := float64(segments[i][0][0] / 100)
-			y := float64(segments[i][0][1] / 100)
+			x := scale(int(segments[i][0][0]), HRM_MAX, IMG_WIDTH)
+			y := scale(int(segments[i][0][1]), HRM_MAX, IMG_HEIGHT)
 			ctx.DrawPoint(x, y, 1)
+			ctx.Stroke()
 		} else {
-			prevX := 0.0
-			prevY := 0.0
-			for _, point := range segments[i] {
-				x := float64(point[0] / 100)
-				y := float64(point[1] / 100)
-				if !(prevX == 0 && prevY == 0) {
-					ctx.DrawLine(prevX, prevY, x, y)
-					ctx.Stroke()
-				}
-				prevX, prevY = x, y
+			for j := 1; j < len(segments[i]); j += 1 {
+				point := segments[i][j]
+				x := scale(int(point[0]), HRM_MAX, IMG_WIDTH)
+				y := scale(int(point[1]), HRM_MAX, IMG_HEIGHT)
+				prevX := scale(int(segments[i][j - 1][0]), HRM_MAX, IMG_WIDTH)
+				prevY := scale(int(segments[i][j - 1][1]), HRM_MAX, IMG_HEIGHT)
+				ctx.DrawLine(prevX, prevY, x, y)
+				ctx.StrokePreserve()
 			}
 		}
 	}
@@ -168,7 +192,7 @@ func main() {
 			fmt.Println(err.Error())
 			os.Exit(1)
 		}
-		b64String = string(bytes)
+		b64String = string(bytes)[:len(bytes) - 1]
 	} else {
 		b64String = flag.Arg(0)
 	}

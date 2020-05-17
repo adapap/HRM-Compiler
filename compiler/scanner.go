@@ -30,9 +30,11 @@ const (
 	OUTBOX
 	JUMP
 	JUMPZ
+	JUMPN
 	COPYFROM
 	COPYTO
 	ADD
+	SUB
 	
 	// Other
 	NEWLINE
@@ -164,34 +166,26 @@ func (s *Scanner) scanIdentifier(t Token) Token {
 Returns the keyword type if match is successful, otherwise
 it is an identifier. */
 func (s *Scanner) matchKeyword() TokenType {
-	remain := s.source[s.start + 1:s.current]
-	switch s.source[s.start] {
-	case 'A':
-		if remain == "DD" {
-			return ADD
-		}
-	case 'C':
-		if remain == "OPYFROM" {
-			return COPYFROM
-		}
-		if remain == "OPYTO" {
-			return COPYTO
-		}
-	case 'I':
-		if remain == "NBOX" {
-			return INBOX
-		}
-	case 'J':
-		if remain == "UMP" {
-			return JUMP
-		}
-		if remain == "UMPZ" {
-			return JUMPZ
-		}
-	case 'O':
-		if remain == "UTBOX" {
-			return OUTBOX
-		}
+	keyword := s.source[s.start:s.current]
+	switch keyword {
+	case "ADD":
+		return ADD
+	case "COPYFROM":
+		return COPYFROM
+	case "COPYTO":
+		return COPYTO
+	case "INBOX":
+		return INBOX
+	case "JUMP":
+		return JUMP
+	case "JUMPN":
+		return JUMPN
+	case "JUMPZ":
+		return JUMPZ
+	case "OUTBOX":
+		return OUTBOX
+	case "SUB":
+		return SUB
 	}
 	return LABEL
 }

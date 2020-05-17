@@ -67,6 +67,8 @@ func DisassembleInstruction(chunk *Chunk, offset int) int {
 		return byteInstruction("JUMP", chunk, offset)
 	case OP_JUMPZ:
 		return byteInstruction("JUMP IF ZERO", chunk, offset)
+	case OP_JUMPN:
+		return byteInstruction("JUMP IF NEGATIVE", chunk, offset)
 	case OP_COPYFROM:
 		return byteInstruction("COPYFROM", chunk, offset)
 	case OP_COPYTO:

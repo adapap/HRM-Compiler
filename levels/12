@@ -1,6 +1,19 @@
 -- HUMAN RESOURCE MACHINE PROGRAM --
 
-todo
-
-INBOX
-ADD 6
+loop:
+    INBOX
+    -- Multiply by 8, store in R0 --
+    COPYTO 0
+    ADD 0
+    COPYTO 0
+    ADD 0
+    COPYTO 0
+    ADD 0
+    COPYTO 0
+    -- Multiply to 32, add 8x from R0 --
+    ADD 0
+    COPYTO 1
+    ADD 1
+    ADD 0
+    OUTBOX
+    JUMP loop

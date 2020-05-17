@@ -23,9 +23,18 @@ are endless!
 JUMP IF ZERO: Jump only if you are currently holding a ZERO. Otherwise continue
 to the next line in your program.
 
+JUMP IF NEGATIVE: Jump only if you are currently holding a negative number. Otherwise
+continue to the next line in your program.
+
 ADD: Add the contents of a specific tile to whatever you are currently holding.
 The result goes back into your hands.
 
+SUB: Subtract the contents of a specific tile on the floor FROM whatever you
+are currently holding. The result goes back into your hands.
+
+COMMENT: Use comments to leave helpful notes for yourself within your program.
+Does not affect your program in any way, other than making it easier for you
+to read!
 */
 
 const (
@@ -36,9 +45,12 @@ const (
 	OP_OUTBOX
 	OP_JUMP
 	OP_JUMPZ
+	OP_JUMPN
 	OP_COPYFROM
 	OP_COPYTO
 	OP_ADD
+	OP_SUB
+	OP_COMMENT
 	OP_NEGATE
 )
 

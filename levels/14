@@ -1,0 +1,15 @@
+-- HUMAN RESOURCE MACHINE PROGRAM --
+
+JUMP main
+greater:
+    COPYFROM 0
+outbox:
+    OUTBOX
+main:
+    INBOX
+    COPYTO 0
+    INBOX
+    SUB 0
+    JUMPN greater
+    ADD 0
+    JUMP outbox

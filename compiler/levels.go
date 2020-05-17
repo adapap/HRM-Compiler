@@ -1,4 +1,9 @@
 package hrm
+import (
+	// "fmt"
+	"math"
+)
+
 /* By design, test cases are generated automatically to consider individual edge cases
 for each level. A better approach would be to determine the exact test case input in
 the game; this way, we get the same number of steps during execution time rather than
@@ -76,7 +81,7 @@ will be cleaned later.
 */
 func Level4(d data) {
 	inbox := generateInputs(2, ALPHANUMERIC)
-	for i := 0; i < len(inbox); i += 2 {
+	for i := 0; i + 1 < len(inbox); i += 2 {
 		*d.expected = append(*d.expected, inbox[i + 1], inbox[i])
 	}
 	*d.inbox = inbox
@@ -95,7 +100,7 @@ value you're currently holding.
 */
 func Level6(d data) {
 	inbox := generateInputs(2, ALL_INTEGERS)
-	for i := 0; i < len(inbox); i += 2 {
+	for i := 0; i + 1 < len(inbox); i += 2 {
 		sum := inbox[i].Int + inbox[i + 1].Int
 		*d.expected = append(*d.expected, IntVal(sum))
 	}
@@ -137,7 +142,8 @@ func Level8(d data) {
 	allocateRegisters(3, d.registers)
 }
 
-/* Level 9: Zero Preservation Initiative
+/*
+Level 9: Zero Preservation Initiative
 Send only ZEROs to the OUTBOX. */
 func Level9(d data) {
 	inbox := generateInputs(1, ALPHANUMERIC)
@@ -150,7 +156,8 @@ func Level9(d data) {
 	allocateRegisters(9, d.registers)
 }
 
-/* Level 10: Octoplier Suite
+/*
+Level 10: Octoplier Suite
 For each thing in the INBOX, multiply it by 8, and put the result in the OUTBOX.
 
 Using a bunch of ADD commands is easy, but WASTEFUL! Can you do it using only
@@ -165,12 +172,30 @@ func Level10(d data) {
 	allocateRegisters(5, d.registers)
 }
 
-/* Level 11: ... */
+/*
+Level 11: Sub Hallway
+For each two things in the INBOX, first subtract the 1st from the 2nd
+and put the result in the OUTBOX. AND THEN, subtract the 2nd from the
+1st and put the result in the OUTBOX. Repeat.
+
+You got a new command! SUBtracts the contents of a tile on the floor
+FROM whatever value you're currently holding. */
 func Level11(d data) {
-	
+	/* todo not working, works in game */
+	inbox := generateInputs(2, ALL_INTEGERS)
+	for i := 0; i + 1 < len(inbox); i += 2 {
+		diff := inbox[i].Int - inbox[i + 1].Int
+		rdiff := inbox[i + 1].Int - inbox[i].Int
+		*d.expected = append(*d.expected, IntVal(rdiff), IntVal(diff))
+	}
+	*d.inbox = inbox
+	allocateRegisters(3, d.registers)
 }
 
-/* Level 12: Tetracontiplier */
+/*
+Level 12: Tetracontiplier
+For each thing in the INBOX, multiply it by 40,
+and put the result in the OUTBOX. */
 func Level12(d data) {
 	inbox := generateInputs(1, ALL_INTEGERS)
 	for i := 0; i < len(inbox); i += 1 {
@@ -181,42 +206,74 @@ func Level12(d data) {
 	allocateRegisters(5, d.registers)
 }
 
-/* Level 13: ... */
+/*
+Level 13: Equalization Room
+Get two things from the INBOX. If they are EQUAL, put ONE of them in the OUTBOX.
+Discard non-equal pairs. Repeat!
+
+You got... COMMENTS! You can use them, if you like, to mark sections of your program. */
 func Level13(d data) {
-	
+	inbox := generateInputs(2, ALL_INTEGERS)
+	for i := 0; i + 1 < len(inbox); i += 2 {
+		a := inbox[i]
+		b := inbox[i + 1]
+		if a.Int == b.Int {
+			*d.expected = append(*d.expected, IntVal(a.Int))
+		}
+	}
+	*d.inbox = inbox
+	allocateRegisters(3, d.registers)
 }
 
-/* Level 14: ... */
+/*
+Level 14: Maximization Room
+Grab TWO things from the INBOX, and put only the BIGGER of the two in the OUTBOX.
+If they are equal, just pick either one. Repeat!
+
+You got a new command! Jumps only if the thing you're holding is negative.
+(Less than zero). Otherwise continues to the next line. */
 func Level14(d data) {
-	
+	inbox := generateInputs(2, ALL_INTEGERS)
+	for i := 0; i + 1 < len(inbox); i += 2 {
+		num := int(math.Max(float64(inbox[i].Int), float64(inbox[i + 1].Int)))
+		*d.expected = append(*d.expected, IntVal(num))
+	}
+	*d.inbox = inbox
+	allocateRegisters(3, d.registers)
 }
 
-/* Level 15: ... */
+/*
+Level 15: ... */
 func Level15(d data) {
 	
 }
 
-/* Level 16: ... */
+/*
+Level 16: ... */
 func Level16(d data) {
 	
 }
 
-/* Level 17: ... */
+/*
+Level 17: ... */
 func Level17(d data) {
 	
 }
 
-/* Level 18: ... */
+/*
+Level 18: ... */
 func Level18(d data) {
 	
 }
 
-/* Level 19: ... */
+/*
+Level 19: ... */
 func Level19(d data) {
 	
 }
 
-/* Level 20: ... */
+/*
+Level 20: ... */
 func Level20(d data) {
 	
 }
