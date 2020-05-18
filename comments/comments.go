@@ -58,7 +58,8 @@ func pixelIsBlack(img image.Image, x, y int) bool {
 }
 
 /* Encodes a PNG image into a HRM comment. */
-func encodePNG(path string) (string, error) {
+func encodePNG(path string, checkNeighbors bool) (string, error) {
+	return "", fmt.Errorf("PNG encoding not supported.")
 	img, err := gg.LoadPNG(path)
 	if err != nil {
 		return "", err
@@ -72,15 +73,18 @@ func encodePNG(path string) (string, error) {
 			if pixelIsBlack(img, x, y) {
 				// Check if there exists a pixel a distance of radius 
 				// in all four cardinal directions (must be a source point)
-				n := pixelIsBlack(img, x, int(math.Max(float64(y) - 5, 0)))
-				s := pixelIsBlack(img, x, int(math.Min(float64(y) + 5, float64(height))))
-				e := pixelIsBlack(img, int(math.Min(float64(x) + 5, float64(width))), y)
-				w := pixelIsBlack(img, int(math.Max(float64(x) - 5, 0)), y)
-				if n && e && s && w {
-					cx := math.Round(scale(x, width, HRM_MAX))
-					cy := math.Round(scale(y, height, HRM_MAX))
-					coords = append(coords, [2]float64{cx, cy})
+				if checkNeighbors {
+					n := pixelIsBlack(img, x, int(math.Max(float64(y) - 4, 0)))
+					s := pixelIsBlack(img, x, int(math.Min(float64(y) + 4, float64(height))))
+					e := pixelIsBlack(img, int(math.Min(float64(x) + 4, float64(width))), y)
+					w := pixelIsBlack(img, int(math.Max(float64(x) - 4, 0)), y)
+					if !(n && e && s && w) {
+						continue
+					}
 				}
+				cx := math.Round(scale(x, width, HRM_MAX))
+				cy := math.Round(scale(y, height, HRM_MAX))
+				coords = append(coords, [2]float64{cx, cy})
 			}
 		}
 	}
@@ -89,15 +93,34 @@ func encodePNG(path string) (string, error) {
 
 /* Encodes ASCII text into a HRM comment. */
 func encodeText(text string) (string, error) {
-	// to-do, use gg.DrawText or variant
-	return "to-do", nil
+	const width = IMG_WIDTH
+	const height = IMG_HEIGHT
+	const out_file = "temp.png"
+	ctx := gg.NewContext(width, height)
+	ctx.SetColor(color.White)
+	ctx.DrawRectangle(0, 0, width, height)
+	ctx.Fill()
+	ctx.SetColor(color.Black)
+	if err := ctx.LoadFontFace("Open Sans.ttf", 64); err != nil {
+		return "", err
+	}
+	ctx.DrawStringWrapped(text, width / 2, height / 2, 0.5, 0.5, width, 1.25, gg.AlignCenter)
+	ctx.SavePNG(out_file)
+	encoded, err := encodePNG(out_file, false)
+	if err != nil {
+		return "", err
+	}
+	err = os.Remove(out_file)
+	return encoded, err
 }
 
 /* Encodes a sequence of coordinates into HRM comment format. */
 func encodeComment(coords Coords) (string, error) {
+	// To-do: HRM supports a maximum of 256 unique coordinates
+	// For text encoding, construct each character as sequence of segments
 	data := make(Coords, 0)
-	for i := 0; i < len(coords); i += 1 {
-		data = append(data, coords[i], [2]float64{0, 0})
+	for i := 0; i + 1 < len(coords); i += 2 {
+		data = append(data, coords[i], coords[i + 1], [2]float64{0, 0})
 	}
 	binaryData := encodeCoords(data)
 	var zlibData bytes.Buffer
@@ -128,8 +151,8 @@ func decodeComment(b64String string) (Coords, error) {
 
 /* Encodes a slice of (x, y) tuples of a comment into binary data. */
 func encodeCoords(coords Coords) []byte {
-	size := len(coords)
-	data := make([]byte, 4 + 4 * size)
+	size := int(math.Min(float64(len(coords)), 255))
+	data := make([]byte, 1028)
 	binary.LittleEndian.PutUint32(data, uint32(size))
 	for i := 0; i < size; i += 1 {
 		x := uint16(coords[i][0])
@@ -212,7 +235,7 @@ func main() {
 		var encoded string
 		var err error
 		if strings.HasSuffix(encode, ".png") {
-			encoded, err = encodePNG(encode)
+			encoded, err = encodePNG(encode, true)
 		} else {
 			encoded, err = encodeText(encode)
 		}

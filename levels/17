@@ -1,0 +1,22 @@
+-- HUMAN RESOURCE MACHINE PROGRAM --
+
+JUMP main
+same:
+    COPYFROM 4
+    JUMP outbox
+checkneg:
+    -- a is negative --
+    INBOX
+    JUMPN same
+diff:
+    COPYFROM 5
+outbox:
+    OUTBOX
+main:
+    INBOX
+    JUMPN checkneg
+    -- a is positive --
+    INBOX
+    JUMPN diff
+    -- both are positive --
+    JUMP same

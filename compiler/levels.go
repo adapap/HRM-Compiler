@@ -260,9 +260,33 @@ func Level16(d data) {
 
 /*
 Level 17: Exclusive Lounge
-... */
+For each TWO things in the INBOX:
+
+Send a 0 to the OUTBOX if they have the same sign. (Both positive or both negative.) 
+
+Send a 1 to the OUTBOX if their signs are different. Repeat until the INBOX is empty. */
 func Level17(d data) {
-	
+	inbox := generateInputs(2, ALL_INTEGERS)
+	for i := 0; i + 1 < len(inbox); i += 2 {
+		a := inbox[i].Int
+		b := inbox[i + 1].Int
+		var num int
+		if math.Signbit(float64(a)) == math.Signbit(float64(b)) {
+			num = 0
+		} else {
+			num = 1
+		}
+		*d.expected = append(*d.expected, IntVal(num))
+	}
+	*d.inbox = inbox
+	*d.registers = []Value{
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		IntVal(0),
+		IntVal(1),
+	}
 }
 
 /* Level 18: Sabbatical Beach Paradise (Cutscene) */
