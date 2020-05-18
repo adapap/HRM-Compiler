@@ -1,0 +1,13 @@
+-- HUMAN RESOURCE MACHINE PROGRAM --
+
+JUMP main
+abs:
+    COPYTO 0
+    SUB 0
+    SUB 0
+outbox:
+    OUTBOX
+main:
+    INBOX
+    JUMPN abs
+    JUMP outbox

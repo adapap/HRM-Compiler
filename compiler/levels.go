@@ -88,7 +88,7 @@ func Level4(d data) {
 	allocateRegisters(3, d.registers)
 }
 
-/* Level 5: Coffee Time... */
+/* Level 5: Coffee Time (Cutscene) */
 
 /* 
 Level 6: Rainy Summer
@@ -242,38 +242,111 @@ func Level14(d data) {
 	allocateRegisters(3, d.registers)
 }
 
-/*
-Level 15: ... */
-func Level15(d data) {
-	
-}
+/* Level 15: Employee Morale Insertion (Cutscene) */
 
 /*
-Level 16: ... */
+Level 16: Absolute Positivity
+Send each thing from the INBOX to the OUTBOX. BUT, if a number is negative,
+first remove its negative sign. */
 func Level16(d data) {
-	
+	inbox := generateInputs(1, ALL_INTEGERS)
+	for i := 0; i < len(inbox); i += 1 {
+		num := int(math.Abs(float64(inbox[i].Int)))
+		*d.expected = append(*d.expected, IntVal(num))
+	}
+	*d.inbox = inbox
+	allocateRegisters(3, d.registers)
 }
 
 /*
-Level 17: ... */
+Level 17: Exclusive Lounge
+... */
 func Level17(d data) {
 	
 }
 
-/*
-Level 18: ... */
-func Level18(d data) {
-	
-}
+/* Level 18: Sabbatical Beach Paradise (Cutscene) */
 
 /*
-Level 19: ... */
+Level 19: Countdown
+... */
 func Level19(d data) {
 	
 }
 
 /*
-Level 20: ... */
+Level 20: Multiplication Workshop
+... */
 func Level20(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level21(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level22(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level23(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level24(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level25(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level26(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level27(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level28(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level29(d data) {
+	
+}
+
+/*
+Level 20: Multiplication Workshop
+... */
+func Level30(d data) {
 	
 }

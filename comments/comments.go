@@ -4,7 +4,6 @@ package main
 // http://perimosocordiae.github.io/articles/pyhrm.html
 
 /* Test Cases
-eJxjYWBg6M7k7QNSDLuqzyYwjIJRMApGFAAAwIMD9g;
 
 hello, world:
 eJwrY2Bg+CH4XDdcSK9fVPjgHFHhxM1AIQZR4XvNp8V2ZlTKTk8vVJDNUVf5XK2usnMtSC7NgLcvzvh1
@@ -25,14 +24,16 @@ GC/JHWE0s2Rg2GHFAPaDWjQDQ2omRM3byg4G77IOhtQoEC/ymf1JhlEwCkYBVgAASVEj4g;
 */
 
 import (
-	"image/color"
 	"bytes"
 	"compress/zlib"
 	"encoding/base64"
 	"encoding/binary"
 	"flag"
 	"fmt"
+	"image"
+	"image/color"
 	"io/ioutil"
+	"math"
 	"os"
 	"strings"
 	
@@ -49,9 +50,15 @@ func scale(a, maxA, maxB int) float64 {
 	return (float64(a) / float64(maxA)) * float64(maxB) + 1
 }
 
+/* Check if a pixel is black at a certain point */
+func pixelIsBlack(img image.Image, x, y int) bool {
+	point := img.At(x, y)
+	r, g, b, a := point.RGBA()
+	return r == 0 && g == 0 && b == 0 && a == HRM_MAX
+}
+
 /* Encodes a PNG image into a HRM comment. */
 func encodePNG(path string) (string, error) {
-	// to-do: take
 	img, err := gg.LoadPNG(path)
 	if err != nil {
 		return "", err
@@ -62,12 +69,18 @@ func encodePNG(path string) (string, error) {
 	coords := make([][2]float64, 0)
 	for x := 0; x < width; x += 1 {
 		for y := 0; y < height; y += 1 {
-			point := img.At(x, y)
-			r, g, b, a := point.RGBA()
-			if r == 0 && g == 0 && b == 0 && a == HRM_MAX {
-				cx := scale(x, width, HRM_MAX)
-				cy := scale(y, height, HRM_MAX)
-				coords = append(coords, [2]float64{cx, cy})
+			if pixelIsBlack(img, x, y) {
+				// Check if there exists a pixel a distance of radius 
+				// in all four cardinal directions (must be a source point)
+				n := pixelIsBlack(img, x, int(math.Max(float64(y) - 5, 0)))
+				s := pixelIsBlack(img, x, int(math.Min(float64(y) + 5, float64(height))))
+				e := pixelIsBlack(img, int(math.Min(float64(x) + 5, float64(width))), y)
+				w := pixelIsBlack(img, int(math.Max(float64(x) - 5, 0)), y)
+				if n && e && s && w {
+					cx := math.Round(scale(x, width, HRM_MAX))
+					cy := math.Round(scale(y, height, HRM_MAX))
+					coords = append(coords, [2]float64{cx, cy})
+				}
 			}
 		}
 	}
@@ -82,9 +95,20 @@ func encodeText(text string) (string, error) {
 
 /* Encodes a sequence of coordinates into HRM comment format. */
 func encodeComment(coords Coords) (string, error) {
-	// to-do
-	fmt.Println(coords)
-	return "todo", nil
+	data := make(Coords, 0)
+	for i := 0; i < len(coords); i += 1 {
+		data = append(data, coords[i], [2]float64{0, 0})
+	}
+	binaryData := encodeCoords(data)
+	var zlibData bytes.Buffer
+	z := zlib.NewWriter(&zlibData)
+	_, err := z.Write(binaryData)
+	z.Close()
+	if err != nil {
+		return "", err
+	}
+	b64String := base64.RawStdEncoding.EncodeToString(zlibData.Bytes()) + ";"
+	return b64String, nil
 }
 
 /* Decodes the base64, zlib-compressed comment into its coordinate representation. */
@@ -100,6 +124,20 @@ func decodeComment(b64String string) (Coords, error) {
 	}
 	data, _ := ioutil.ReadAll(z)
 	return decodeCoords(data), nil
+}
+
+/* Encodes a slice of (x, y) tuples of a comment into binary data. */
+func encodeCoords(coords Coords) []byte {
+	size := len(coords)
+	data := make([]byte, 4 + 4 * size)
+	binary.LittleEndian.PutUint32(data, uint32(size))
+	for i := 0; i < size; i += 1 {
+		x := uint16(coords[i][0])
+		y := uint16(coords[i][1])
+		binary.LittleEndian.PutUint16(data[4 + 4 * i:], x)
+		binary.LittleEndian.PutUint16(data[6 + 4 * i:], y)
+	}
+	return data
 }
 
 /* Decodes the binary data of a comment into a slice of (x, y) tuples. */

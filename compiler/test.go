@@ -101,12 +101,20 @@ var Level map[int]levelFn = map[int]levelFn{
 	12: Level12,
 	13: Level13,
 	14: Level14,
-	15: Level15,
 	16: Level16,
 	17: Level17,
-	18: Level18,
 	19: Level19,
 	20: Level20,
+	21: Level21,
+	22: Level22,
+	23: Level23,
+	24: Level24,
+	25: Level25,
+	26: Level26,
+	27: Level27,
+	28: Level28,
+	29: Level29,
+	30: Level30,
 }
 
 func TestLevel(level int, source string, debug bool) bool {
