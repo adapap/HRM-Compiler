@@ -95,15 +95,21 @@ func encodePNG(path string, checkNeighbors bool) (string, error) {
 
 /* Encodes ASCII text into a HRM comment. */
 func encodeText(text string) (string, error) {
-	if len(text) > 16 {
-		return "", fmt.Errorf("Maximum text encoding length is 16 UPPERCASE characters.")
+	if len(text) > 26 {
+		return "", fmt.Errorf("Maximum text encoding length is 25 characters.")
 	}
 	coords := make(Coords, 0)
 	fontSize := 16.0
 	kerning := 16.0
+	lineHeight := 1.25
 	for n, c := range text {
-		ax := fontSize * float64(n + 1) + (kerning * float64(n))
-		ay := IMG_HEIGHT / 2.0
+		ax := fontSize * float64((n % 13) + 1) + (kerning * float64(n % 13))
+		var ay float64
+		if len(text) <= 13 {
+			ay = IMG_HEIGHT / 2.0
+		} else {
+			ay = IMG_HEIGHT / 3.0 + IMG_HEIGHT / 3.0 * float64(n / 13) * lineHeight
+		}
 		segments, err := CharacterSegments(c)
 		for i := 0; i < len(segments); i += 1 {
 			if segments[i] == DIVIDER {
@@ -117,8 +123,11 @@ func encodeText(text string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		coords = append(coords, EMPTY_POINT)
+		if coords[len(coords) - 1] != EMPTY_POINT {
+			coords = append(coords, EMPTY_POINT)
+		}
 	}
+	fmt.Println(coords)
 	return encodeComment(coords)
 }
 
