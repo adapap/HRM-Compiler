@@ -32,6 +32,12 @@ The result goes back into your hands.
 SUB: Subtract the contents of a specific tile on the floor FROM whatever you
 are currently holding. The result goes back into your hands.
 
+BUMP+: Add ONE to the contents of a specific tile on the floor. The result is
+written back to the floor, and also back into your hands for your convenience!
+
+BUMP-: Subtract ONE to the contents of a specific tile on the floor. The result is
+written back to the floor, and also back into your hands for your convenience!
+
 COMMENT: Use comments to leave helpful notes for yourself within your program.
 Does not affect your program in any way, other than making it easier for you
 to read!
@@ -50,7 +56,8 @@ const (
 	OP_COPYTO
 	OP_ADD
 	OP_SUB
-	OP_COMMENT
+	OP_BUMPUP
+	OP_BUMPDN
 	OP_NEGATE
 )
 

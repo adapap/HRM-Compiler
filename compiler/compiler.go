@@ -172,6 +172,12 @@ func (p *Parser) statement() {
 	case p.match(SUB):
 		p.sub()
 		p.size += 1
+	case p.match(BUMPUP):
+		p.bumpUp()
+		p.size += 1
+	case p.match(BUMPDN):
+		p.bumpDown()
+		p.size += 1
 	case p.match(LABEL):
 		p.labelDeclaration()
 	case p.match(EOF):
@@ -251,6 +257,18 @@ func (p *Parser) add() {
 func (p *Parser) sub() {
 	p.primary()
 	p.emitByte(OP_SUB)
+}
+
+/* Parses a BUMPUP [addr] instruction. */
+func (p *Parser) bumpUp() {
+	p.primary()
+	p.emitByte(OP_BUMPUP)
+}
+
+/* Parses a BUMPDN [addr] instruction. */
+func (p *Parser) bumpDown() {
+	p.primary()
+	p.emitByte(OP_BUMPDN)
 }
 
 /* Parses an expression. */

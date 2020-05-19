@@ -35,6 +35,8 @@ const (
 	COPYTO
 	ADD
 	SUB
+	BUMPUP
+	BUMPDN
 	
 	// Other
 	NEWLINE
@@ -157,6 +159,28 @@ func (s *Scanner) scanIdentifier(t Token) Token {
 		literal += string(s.char)
 		s.advance()
 	}
+	if literal == "DEFINE" {
+		for !(s.char == ';' || s.char == 0) {
+				if s.char == '\n' {
+					s.line += 1
+					s.column = 1
+				}
+				s.advance()
+			}
+		s.advance()
+		s.line += 1
+		s.column = 1
+		return s.ScanToken()
+	}
+	if literal == "COMMENT" {
+		for !(s.char == '\n' || s.char == 0) {
+			s.advance()
+		}
+		s.advance()
+		s.line += 1
+		s.column = 1
+		return s.ScanToken()
+	}
 	t.Literal = literal
 	t.Type = s.matchKeyword()
 	return t
@@ -170,6 +194,10 @@ func (s *Scanner) matchKeyword() TokenType {
 	switch keyword {
 	case "ADD":
 		return ADD
+	case "BUMPUP":
+		return BUMPUP
+	case "BUMPDN":
+		return BUMPDN
 	case "COPYFROM":
 		return COPYFROM
 	case "COPYTO":

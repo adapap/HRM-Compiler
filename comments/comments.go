@@ -127,7 +127,6 @@ func encodeText(text string) (string, error) {
 			coords = append(coords, EMPTY_POINT)
 		}
 	}
-	fmt.Println(coords)
 	return encodeComment(coords)
 }
 

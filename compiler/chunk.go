@@ -75,6 +75,10 @@ func DisassembleInstruction(chunk *Chunk, offset int) int {
 		return byteInstruction("COPYTO", chunk, offset)
 	case OP_ADD:
 		return byteInstruction("ADD", chunk, offset)
+	case OP_BUMPUP:
+		return byteInstruction("BUMP+", chunk, offset)
+	case OP_BUMPDN:
+		return byteInstruction("BUMP-", chunk, offset)
 	case OP_NEGATE:
 		return simpleInstruction("NEGATE", offset)
 	default:

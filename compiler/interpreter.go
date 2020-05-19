@@ -231,6 +231,7 @@ func (vm *VM) run() INTERPRET_STATE {
 				return INTERPRET_RUNTIME_ERROR
 			}
 			vm.hand.Int += value.Int
+			vm.steps += 1
 		case OP_SUB:
 			register := vm.readRegister()
 			value, ok := vm.checkRegister(register, "SUB")
@@ -242,6 +243,33 @@ func (vm *VM) run() INTERPRET_STATE {
 				return INTERPRET_RUNTIME_ERROR
 			}
 			vm.hand.Int -= value.Int
+			vm.steps += 1
+		case OP_BUMPUP:
+			register := vm.readRegister()
+			value, ok := vm.checkRegister(register, "BUMP+")
+			if !ok {
+				return INTERPRET_RUNTIME_ERROR
+			}
+			if value.Type != VAL_INT {
+				vm.raiseError(NAN_ERROR, "BUMP+")
+				return INTERPRET_RUNTIME_ERROR
+			}
+			vm.hand.Int = value.Int + 1
+			vm.copyRegister(register, "BUMP+")
+			vm.steps += 1
+		case OP_BUMPDN:
+			register := vm.readRegister()
+			value, ok := vm.checkRegister(register, "BUMP-")
+			if !ok {
+				return INTERPRET_RUNTIME_ERROR
+			}
+			if value.Type != VAL_INT {
+				vm.raiseError(NAN_ERROR, "BUMP-")
+				return INTERPRET_RUNTIME_ERROR
+			}
+			vm.hand.Int = value.Int - 1
+			vm.copyRegister(register, "BUMP-")
+			vm.steps += 1
 		case OP_NEGATE:
 			fmt.Printf("OP_NEGATE\n")
 			if vm.peek(0).Type != VAL_INT {

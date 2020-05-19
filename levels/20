@@ -1,0 +1,28 @@
+-- HUMAN RESOURCE MACHINE PROGRAM --
+
+JUMP main
+answer:
+    COPYFROM 0
+outbox:
+    OUTBOX
+main:
+    INBOX
+    COPYTO 0
+    COPYTO 1
+    INBOX
+    JUMPZ outbox
+    COPYTO 9
+multiply:
+    BUMPDN 9
+    JUMPZ answer
+    COPYFROM 0
+    ADD 1
+    COPYTO 0
+    JUMP multiply
+    
+-- factor --
+DEFINE LABEL 1
+eJwyYGBgeMjiNPchy/6kRXz7kxjAfMaGRXyMDSB2koTT3CSJhMLLUvuTNsvvT1JWSihUVnKaC5FjbFBWgqhbYvo4+4jB/qQn2o+zn2h7TTpi4DR3ianXJJBcqv3+JFVPiNmuLvuTXF0g+uVC9idditqftCwmoXBZzMK+S1FOc+VCnOY+C1rY9ywooRAkD1KXnuY0Nz1tf1Jw3v4kjYKEwuA8xob0NMYGjQKIOaNgFIwC8gEgAAD//5B2QaQ;
+-- counter --
+DEFINE LABEL 9
+eJwyYmBgWMT3OPsQ5/6khyyPsx+yeE06xOk0dxGf1yQGBgaG2ZL7k/wV9icpKyUUKist7PNXcJo7W9JpbpLEwr4kiYRCkDxI3RPt/UlPtL0mHTFwmrvE1GvSElOIeKq909xU+/1Jqp5Oc1U9IWLPgvYnLYuBsI+F7086Fu40F8TWKHCam54GwvuTNAog8ulpjA0aBYwNIPaLSqe5Lyr3J11t3J+0sjmh8GojY8OLSsaGlc0Q/aNgFIwC0gEgAAD//+fZSYI;

@@ -293,23 +293,85 @@ func Level17(d data) {
 
 /*
 Level 19: Countdown
-... */
+For each number in the INBOX, send that number to the OUTBOX,
+followed by all numbers down to (or up to) zero. It's a countdown!
+
+You got new commands! They add ONE or subtract ONE from an item on the floor.
+The result is given back to you, and for your convenience, also written right
+back on the floor. BUMP! */
 func Level19(d data) {
-	
+	inbox := generateInputs(1, ALL_INTEGERS)
+	for i := 0; i < len(inbox); i += 1 {
+		num := inbox[i].Int
+		for num != 0 {
+			*d.expected = append(*d.expected, IntVal(num))
+			if num < 0 {
+				num += 1
+			} else {
+				num -= 1
+			}
+		}
+		*d.expected = append(*d.expected, IntVal(num))
+	}
+	*d.inbox = inbox
+	allocateRegisters(10, d.registers)
 }
 
 /*
 Level 20: Multiplication Workshop
-... */
+For each two things in the INBOX, multiply them, and OUTBOX the result.
+Don't worry about negative numbers for now.
+
+You got... LABELS! They can help you remember the purpose of each tile on the
+floor. Just tap any tile on the floor to edit. */
 func Level20(d data) {
-	
+	inbox := generateInputs(2, POSITIVE_INTEGERS)
+	for i := 0; i + 1 < len(inbox); i += 2 {
+		a := inbox[i].Int
+		b := inbox[i + 1].Int
+		*d.expected = append(*d.expected, IntVal(a * b))
+	}
+	*d.inbox = inbox
+	*d.registers = []Value{
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		IntVal(0),
+	}
 }
 
 /*
-Level 20: Multiplication Workshop
-... */
+Level 21: Zero Terminated Sum
+The INBOX is filled with ZERO terminated strings! What's that? Ask me. Your Boss.
+
+Add together all the numbers in each string. When you reach the end of a string
+(marked by a ZERO), put your sum in the OUTBOX. Reset and repeat for each string. */
 func Level21(d data) {
-	
+	inbox := generateInputs(1, ALL_INTEGERS, []Value{IntVal(0)}, POSITIVE_INTEGERS, []Value{IntVal(0)})
+	sum := 0
+	for i := 0; i < len(inbox); i += 1 {
+		if inbox[i].Int != 0 {
+			sum += inbox[i].Int
+		} else {
+			*d.expected = append(*d.expected, IntVal(sum))
+			sum = 0
+		}
+	}
+	*d.inbox = inbox
+	*d.registers = []Value{
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		IntVal(0),
+	}
 }
 
 /*
