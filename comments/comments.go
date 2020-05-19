@@ -40,7 +40,9 @@ import (
 	"github.com/fogleman/gg"
 )
 
-type Coords [][2]float64
+type Coords []Point
+type Point [2]float64
+var EMPTY_POINT = [2]float64{0, 0}
 const HRM_MAX = 65535
 const IMG_WIDTH = 420
 const IMG_HEIGHT = 140
@@ -67,7 +69,7 @@ func encodePNG(path string, checkNeighbors bool) (string, error) {
 	bounds := img.Bounds()
 	width := bounds.Max.X
 	height := bounds.Max.Y
-	coords := make([][2]float64, 0)
+	coords := make(Coords, 0)
 	for x := 0; x < width; x += 1 {
 		for y := 0; y < height; y += 1 {
 			if pixelIsBlack(img, x, y) {
@@ -93,36 +95,38 @@ func encodePNG(path string, checkNeighbors bool) (string, error) {
 
 /* Encodes ASCII text into a HRM comment. */
 func encodeText(text string) (string, error) {
-	const width = IMG_WIDTH
-	const height = IMG_HEIGHT
-	const out_file = "temp.png"
-	ctx := gg.NewContext(width, height)
-	ctx.SetColor(color.White)
-	ctx.DrawRectangle(0, 0, width, height)
-	ctx.Fill()
-	ctx.SetColor(color.Black)
-	if err := ctx.LoadFontFace("Open Sans.ttf", 64); err != nil {
-		return "", err
+	if len(text) > 16 {
+		return "", fmt.Errorf("Maximum text encoding length is 16 UPPERCASE characters.")
 	}
-	ctx.DrawStringWrapped(text, width / 2, height / 2, 0.5, 0.5, width, 1.25, gg.AlignCenter)
-	ctx.SavePNG(out_file)
-	encoded, err := encodePNG(out_file, false)
-	if err != nil {
-		return "", err
+	coords := make(Coords, 0)
+	fontSize := 16.0
+	kerning := 16.0
+	for n, c := range text {
+		ax := fontSize * float64(n + 1) + (kerning * float64(n))
+		ay := IMG_HEIGHT / 2.0
+		segments, err := CharacterSegments(c)
+		for i := 0; i < len(segments); i += 1 {
+			if segments[i] == DIVIDER {
+				coords = append(coords, EMPTY_POINT)
+				continue
+			}
+			x := math.Round(scale(int(ax + segments[i].x * fontSize), IMG_WIDTH, HRM_MAX))
+			y := math.Round(scale(int(ay - segments[i].y * fontSize), IMG_HEIGHT, HRM_MAX))
+			coords = append(coords, [2]float64{x, y})
+		}
+		if err != nil {
+			return "", err
+		}
+		coords = append(coords, EMPTY_POINT)
 	}
-	err = os.Remove(out_file)
-	return encoded, err
+	return encodeComment(coords)
 }
 
 /* Encodes a sequence of coordinates into HRM comment format. */
 func encodeComment(coords Coords) (string, error) {
 	// To-do: HRM supports a maximum of 256 unique coordinates
 	// For text encoding, construct each character as sequence of segments
-	data := make(Coords, 0)
-	for i := 0; i + 1 < len(coords); i += 2 {
-		data = append(data, coords[i], coords[i + 1], [2]float64{0, 0})
-	}
-	binaryData := encodeCoords(data)
+	binaryData := encodeCoords(coords)
 	var zlibData bytes.Buffer
 	z := zlib.NewWriter(&zlibData)
 	_, err := z.Write(binaryData)
@@ -167,7 +171,7 @@ func encodeCoords(coords Coords) []byte {
 func decodeCoords(data []byte) Coords {
 	header := binary.LittleEndian.Uint32(data[:4])
 	data = data[4:4 * header]
-	coords := make([][2]float64, header)
+	coords := make(Coords, header)
 	for i := 0; i < int(4 * header); i += 4 {
 		x := binary.LittleEndian.Uint16(data[i:i + 2])
 		y := binary.LittleEndian.Uint16(data[i + 2:i + 4])
@@ -179,11 +183,9 @@ func decodeCoords(data []byte) Coords {
 
 /* Displays coordinates onto an image. */
 func displayCoords(coords Coords) {
-	const width = IMG_WIDTH
-	const height = IMG_HEIGHT
-	ctx := gg.NewContext(width, height)
+	ctx := gg.NewContext(IMG_WIDTH, IMG_HEIGHT)
 	ctx.SetColor(color.White)
-	ctx.DrawRectangle(0, 0, width, height)
+	ctx.DrawRectangle(0, 0, IMG_WIDTH, IMG_HEIGHT)
 	ctx.Fill()
 	ctx.SetColor(color.Black)
 	ctx.SetLineWidth(10)

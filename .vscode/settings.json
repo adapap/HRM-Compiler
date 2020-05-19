@@ -1,4 +1,4 @@
 {
     "go.vetOnSave": "off",
-    "go.inferGopath": false
+    "go.inferGopath": false,
 }
