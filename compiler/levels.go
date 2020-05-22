@@ -409,57 +409,138 @@ func Level22(d data) {
 }
 
 /*
-Level 20: Multiplication Workshop
-... */
+Level 23: The Littlest Number
+For each two things in the INBOX, how many times does the second fully fit into
+the first? Don't worry about negative numbers, divide by zero, or remainders.
+
+Self improvement tip: This might be a good time to practice copying and pasting
+from a previous assignment! */
 func Level23(d data) {
 	
 }
 
 /*
-Level 20: Multiplication Workshop
-... */
+Level 24: Mod Module
+For each two things in the INBOX, OUTBOX the remainder that would result if you had
+divided the first by the second. Don't worry, you don't actually have to divide.
+And don't worry about negative numbers for now. */
 func Level24(d data) {
-	
+	inbox := generateInputs(1, POSITIVE_INTEGERS)
+	for i := 0; i + 1 < len(inbox); i += 2 {
+		num := inbox[i].Int % inbox[i + 1].Int
+		*d.expected = append(*d.expected, IntVal(num))
+	}
+	*d.inbox = inbox
+	allocateRegisters(10, d.registers)
 }
 
 /*
-Level 20: Multiplication Workshop
+Level 25: Cumulative Countdown
 ... */
 func Level25(d data) {
 	
 }
 
 /*
-Level 20: Multiplication Workshop
+Level 26: Small Divide
 ... */
 func Level26(d data) {
 	
 }
 
-/*
-Level 20: Multiplication Workshop
-... */
-func Level27(d data) {
-	
-}
+/* Level 27: Midnight Petroleum (Cutscene) */
 
 /*
-Level 20: Multiplication Workshop
+Level 28: Three Sort
 ... */
 func Level28(d data) {
 	
 }
 
 /*
-Level 20: Multiplication Workshop
+Level 29: Storage Floor
 ... */
 func Level29(d data) {
 	
 }
 
 /*
-Level 20: Multiplication Workshop
+Level 30: String Storage Floor
 ... */
 func Level30(d data) {
 	
 }
+
+/*
+Level 31: String Reverse
+... */
+func Level31(d data) {
+	
+}
+
+/*
+Level 32: Inventory Report
+... */
+func Level32(d data) {
+	
+}
+
+/* Level 33: Where's Carol? (Cutscene) */
+
+/*
+Level 34: Vowel Incinerator
+... */
+func Level34(d data) {
+	
+}
+
+/*
+Level 35: Duplicate Removal
+... */
+func Level35(d data) {
+	
+}
+
+/*
+Level 36: Alphabetizer
+... */
+func Level36(d data) {
+	
+}
+
+/*
+Level 37: Scavenger Chain
+... */
+func Level37(d data) {
+	
+}
+
+/*
+Level 38: Digit Exploder
+... */
+func Level38(d data) {
+	
+}
+
+/*
+Level 39: Re-Coordinator
+... */
+func Level39(d data) {
+	
+}
+
+/*
+Level 40: Prime Factory
+... */
+func Level40(d data) {
+	
+}
+
+/*
+Level 41: Sorting Floor
+... */
+func Level41(d data) {
+	
+}
+
+/* Level 42: End Program. Congratulations. */
