@@ -18,7 +18,7 @@ it into the OUTBOX.
 */
 
 func Level1(d data) {
-	*d.inbox = generateInputs(1, IntegerSlice(1, 4, 1))
+	*d.inbox = generateInputs(1, IntegerSlice(1, 3, 1))
 	for _, x := range *d.inbox {
 		*d.expected = append(*d.expected, x)
 	}
@@ -375,10 +375,37 @@ func Level21(d data) {
 }
 
 /*
-Level 20: Multiplication Workshop
-... */
+Level 22: Fibonacci Visitor
+For each thing in the INBOX, send to the OUTBOX the full Fibonacci Sequence
+up to, but not exceeding that value. For example, if INBOX is 10, OUTBOX should
+be 1 1 2 3 5 8. What's a Fibonacci Sequence? Ask your boss, or a friendly
+search box.
+
+1 1 2 3 5 8 13 21 34 55 89... */
 func Level22(d data) {
-	
+	inbox := generateInputs(1, POSITIVE_INTEGERS)
+	for i := 0; i < len(inbox); i += 1 {
+		n := inbox[i].Int
+		for a, b := 0, 1; b <= n; {
+			*d.expected = append(*d.expected, IntVal(b))
+			sum := a + b
+			a = b
+			b = sum
+		}
+	}
+	*d.inbox = inbox
+	*d.registers = []Value{
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		EmptyVal(),
+		IntVal(0),
+	}
 }
 
 /*
